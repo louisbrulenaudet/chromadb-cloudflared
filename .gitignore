@@ -1,7 +1,7 @@
 # Environment — never commit real secrets
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.template
 
 # ChromaDB data directories (if checked out locally for inspection)
 chroma-data/

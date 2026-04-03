@@ -20,6 +20,10 @@ create-data-dir: ## Create CHROMA_DATA_DIR on the host (reads .env if present)
 	mkdir -p "$(CHROMA_DATA_DIR)"
 
 start: ## Start chromadb and cloudflared (docker compose up -d)
+	@if [ ! -f .env ]; then \
+		echo "❌ Missing .env. Copy .env.template to .env and set CHROMA_DATA_DIR and TUNNEL_TOKEN."; \
+		exit 1; \
+	fi
 	@echo "🚀 Starting services..."
 	docker compose up -d
 
@@ -28,6 +32,10 @@ stop: ## Stop all compose services
 	docker compose down
 
 restart: ## Restart all compose services
+	@if [ ! -f .env ]; then \
+		echo "❌ Missing .env. Copy .env.template to .env and set CHROMA_DATA_DIR and TUNNEL_TOKEN."; \
+		exit 1; \
+	fi
 	@echo "🔄 Restarting services..."
 	docker compose down && docker compose up -d
 

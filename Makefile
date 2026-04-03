@@ -1,4 +1,4 @@
-# Load the same keys docker compose uses from .env (optional until you copy .env.template)
+# Make reads .env when present; docker compose also requires a project .env for compose.yml substitution.
 -include .env
 
 include make/variables.mk

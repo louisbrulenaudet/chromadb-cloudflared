@@ -18,7 +18,7 @@ flowchart LR
 ```
 chromadb-cloudflared/
 ├── compose.yml          # chromadb + cloudflared services
-├── Makefile             # loads .env (optional), includes make/*.mk
+├── Makefile             # -include .env for Make; Compose still needs a project .env file
 ├── make/
 │   ├── variables.mk     # defaults (CHROMA_DATA_DIR, colors, PROJECT_NAME)
 │   ├── docker.mk        # start, stop, logs, create-data-dir, etc.
@@ -55,24 +55,26 @@ chromadb-cloudflared/
 
 1. **Environment**
 
+   **You need a project `.env` file before `make start` or `docker compose up`.** Docker Compose reads `.env` in this directory for `${CHROMA_DATA_DIR}` and `${TUNNEL_TOKEN}`; it does not use Make’s defaults from `make/variables.mk`.
+
    ```sh
    cp .env.template .env
    ```
 
    Edit `.env` and set:
 
-   - `CHROMA_DATA_DIR` — absolute path on the host (for example `/srv/chroma-data`).
+   - `CHROMA_DATA_DIR` — absolute path on the host (for example `/srv/chroma-data` on a Pi or server).
    - `TUNNEL_TOKEN` — your tunnel token (never commit this file).
 
    ```sh
    make create-data-dir
    ```
 
-   This uses `CHROMA_DATA_DIR` from `.env` if the file exists, otherwise the default in `make/variables.mk` (`/srv/chroma-data`). You can still run `mkdir -p` yourself if you prefer.
+   `create-data-dir` uses `CHROMA_DATA_DIR` from `.env` when the file exists; if you run Make without `.env`, `make/variables.mk` falls back to `$HOME/chroma-data` for **Make targets only**—that path is not applied to Compose until it appears in `.env`. You can still run `mkdir -p` yourself if you prefer.
 
 2. **Cloudflare dashboard**
 
-   For the tunnel’s public hostname, set the service URL to **`http://chromadb:8000`** (Docker service name and internal port). Do **not** point the tunnel at `localhost` or a host LAN address unless you deliberately change the architecture; in this stack, only `cloudflared` talks to Chroma on the Docker network.
+   For the tunnel’s public hostname, set the service URL to **`http://chromadb:8000`** (Docker service name and internal port). Do **not** point the tunnel at `localhost` or a host LAN address unless you deliberately change the architecture; in this stack, only `cloudflared` talks to Chroma on the Docker network. Because Chroma has no built-in API auth, add **Cloudflare Access** (or similar) on that hostname if the API must not be public.
 
 3. **Run**
 
